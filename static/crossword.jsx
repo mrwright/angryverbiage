@@ -271,16 +271,16 @@ class Crossword extends React.Component {
     });
   }
 
-  enterChar(c, dir, moveFirst) {
+  enterChar(c, dir, moveFirst, stopAtBounds) {
     let {x, y, rows, mode} = this.state;
 
     let newX = x;
     let newY = y;
 
     if (mode === 'across') {
-      newX = this.nextPos(dir, 0).x;
+      newX = this.nextPos(dir, 0, stopAtBounds).x;
     } else {
-      newY = this.nextPos(0, dir).y;
+      newY = this.nextPos(0, dir, stopAtBounds).y;
     }
 
     if (rows[newY] && rows[newY][newX] && rows[newY][newX] !== '#') {
@@ -302,7 +302,7 @@ class Crossword extends React.Component {
     }
   }
 
-  nextPos(dx, dy) {
+  nextPos(dx, dy, stopAtBounds) {
     let {x, y, rows} = this.state;
 
     let cx = x;
@@ -318,6 +318,8 @@ class Crossword extends React.Component {
       }
       if (rows[ny] && rows[ny][nx] !== '#') {
         return { x: nx, y: ny };
+      } else if (stopAtBounds) {
+        return { x, y };
       }
 
       cx = nx;
@@ -366,6 +368,7 @@ class Crossword extends React.Component {
           clues: result.clues,
           title: result.title,
           author: result.author,
+          notes: result.notes,
         });
         this_.doPoll();
       }
@@ -378,20 +381,29 @@ class Crossword extends React.Component {
       let {x, y, rows, mode} = this_.state;
       if (e.key === 'ArrowUp') {
         this_.moveDir(0, -1);
+        e.preventDefault();
       } else if (e.key === 'ArrowDown') {
         this_.moveDir(0, 1);
+        e.preventDefault();
       } else if (e.key === 'ArrowLeft') {
         this_.moveDir(-1, 0);
+        e.preventDefault();
       } else if (e.key === 'ArrowRight') {
         this_.moveDir(1, 0);
+        e.preventDefault();
       } else if (e.key === '\\' || e.key == ' ') {
         if (mode === 'across') {
           this_.setState({ mode: 'down' });
         } else {
           this_.setState({ mode: 'across' });
         }
+        e.preventDefault();
       } else if (e.key === 'Backspace') {
-        this_.enterChar(' ', -1, true);
+        if (rows[y][x] === ' ') {
+          this_.enterChar(' ', -1, true, true);
+        } else {
+          this_.enterChar(' ', 0, true, true);
+        }
       } else if (e.key === 'Delete') {
         this_.enterChar(' ', 0);
       } else if (e.key.length === 1) {
@@ -421,6 +433,7 @@ class Crossword extends React.Component {
       mouseY: null,
       title: null,
       author: null,
+      notes: null,
       cursor: 0,
     };
   }
@@ -507,8 +520,10 @@ class Crossword extends React.Component {
 
     return (
       <div>
-        <h1 className="puzzle-title">{this.state.title}</h1>
-        <h2 className="puzzle-author">{this.state.author}</h2>
+        <div className="puzzle-header">
+          <h1 className="puzzle-title">{this.state.title}</h1>
+          <h2 className="puzzle-author">{this.state.author}</h2>
+        </div>
         <Grid
           rows={this.state.rows}
           numbers={this.state.numbers}
@@ -528,6 +543,7 @@ class Crossword extends React.Component {
           onClueClick={onClueClick}
           hilightClues={this.state.hilightClues}
         />
+        <div className="puzzle-notes">{this.state.notes}</div>
       </div>
     );
   }

@@ -121,6 +121,7 @@ class GridHandler(Handler):
             'grid': row_strs,
             'title': puzzle.title,
             'author': puzzle.author,
+            'notes': puzzle.notes,
             'numbering': numbering,
             'clues': {
                 'across': across_clues,
