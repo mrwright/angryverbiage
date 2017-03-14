@@ -1,0 +1,121 @@
+h1.puzzle-title {
+    margin-left: 30px;
+    margin-bottom: 0;
+}
+
+h2.puzzle-author {
+    margin-left: 30px;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+.crossword {
+    display: table;
+    border-width: 1px;
+    border-top: 0;
+    border-left: 0;
+    border-style: solid;
+    float: left;
+    margin-top: 30px;
+    margin-left: 30px;
+}
+
+.crossword-row {
+    display: table-row;
+}
+
+.crossword-cell {
+    display: table-cell;
+    border-width: 1px;
+    border-style: solid;
+    border-right: 0;
+    border-bottom: 0;
+    width: 27px;
+    height: 39px;
+    padding: 5px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 24;
+    font-weight: bold;
+    font-family: monospace;
+
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+
+    /* Rules below not implemented in browsers yet */
+    -o-user-select: none;
+    user-select: none;
+}
+
+.crossword-cell:hover {
+    background: #ffc0c0;
+}
+.crossword-cell.active {
+    background: #d0d0ff;
+}
+.crossword-cell.active:hover {
+    background: #b0b0ff;
+}
+.crossword-cell.active-cell {
+    background: #ffff40;
+}
+.crossword-cell.active-cell:hover {
+    background: #ffc000;
+}
+
+.crossword-cell .last-row {
+    border-bottom: 1px;
+}
+
+.crossword-cell.last-col {
+    border-right: 1px;
+}
+
+.crossword-number {
+    position: relative;
+    font-size: 10;
+    left: -3px;
+    top: -5px;
+    width: 0px;
+    height: 0px;
+    font-weight: normal;
+    font-family: normal;
+}
+
+.crossword-cell.filled {
+    background: black;
+}
+
+.cluebox {
+    padding-left: 30px;
+    column-count: 3;
+    max-width: 800px;
+}
+
+.cluebox .clue {
+    margin-top: 5px;
+    max-width: 250px;
+}
+
+.cluebox .clue.active {
+    background: #ffff80;
+}
+
+.cluebox .clue.hilit {
+    background: #ffc0c0;
+}
+
+.cluebox .clue .cluenum {
+    font-weight: bold;
+    display: inline;
+}
+
+.cluebox .clue .cluetext {
+    display: inline;
+    cursor: pointer;
+}
+
+.cluebox h1 {
+    margin-bottom: 0;
+}
