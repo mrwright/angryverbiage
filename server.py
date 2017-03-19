@@ -14,6 +14,10 @@ Handler = tornado.web.RequestHandler
 global_id = 1
 
 puzzle = puz.read('washpost.puz')
+#puzzle = puz.read('puzpy-master/testfiles/nyt_weekday_with_notes.puz')
+#puzzle = puz.read('puzpy-master/testfiles/nyt_sun_rebus.puz')
+#puzzle = puz.read('puzpy-master/testfiles/av110622.puz')
+
 def pos(cell):
     return (cell % puzzle.width, cell // puzzle.width)
 
@@ -39,6 +43,10 @@ def next_id():
     res = global_id
     global_id += 1
     return res
+
+def is_solved():
+    sol_str = "".join(row_strs).replace('#', '.')
+    return puzzle.check_answers(sol_str)
 
 # This class is mostly copied from Tordado's chat example.
 class MessageBuffer(object):
@@ -119,6 +127,7 @@ class GridHandler(Handler):
 
         self.write({
             'grid': row_strs,
+            'solved': is_solved(),
             'title': puzzle.title,
             'author': puzzle.author,
             'notes': puzzle.notes,
@@ -147,6 +156,7 @@ class DataHandler(Handler):
             'x': x,
             'y': y,
             'char': char,
+            'solved': is_solved(),
         }
         global_message_buffer.new_messages([message])
 

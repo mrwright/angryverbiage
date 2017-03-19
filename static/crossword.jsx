@@ -341,11 +341,25 @@ class Crossword extends React.Component {
       success: function(result) {
         let {rows} = this_.state;
         const messages = result.messages;
+        let solved = this_.state.solved;
+        let dismissed = this_.state.dismissed;
+        let cursor = this_.state.cursor;
         for (const message of messages) {
-          this_.setState({ cursor: message.id });
+          cursor = message.id;
           rows = this_.setGridChar(rows, message['char'], message.x, message.y);
+          if (message.solved) {
+            solved = true;
+          } else {
+            solved = false;
+            dismissed = false;
+          }
         }
-        this_.setState({ rows: rows });
+        this_.setState({
+          rows: rows,
+          solved: solved,
+          dismissed: dismissed,
+          cursor: cursor,
+        });
 
         this_.doPoll();
       },
@@ -369,6 +383,7 @@ class Crossword extends React.Component {
           title: result.title,
           author: result.author,
           notes: result.notes,
+          solved: result.solved,
         });
         this_.doPoll();
       }
@@ -435,6 +450,8 @@ class Crossword extends React.Component {
       author: null,
       notes: null,
       cursor: 0,
+      solved: false,
+      dismissed: false,
     };
   }
 
@@ -518,12 +535,42 @@ class Crossword extends React.Component {
       activeClue = 0;
     }
 
+    let dismiss = function() {
+      this_.setState({
+        dismissed: true,
+      });
+    }
+
+    const show_banner = this.state.solved && !this.state.dismissed;
+
+    let banner_class;
+    if (show_banner) {
+      banner_class = "solved";
+    } else {
+      banner_class = "solved hidden";
+    }
+
+    var solved_banner = (
+      <div className={banner_class}>
+        <div className="solved-inner">
+          <div className="solved-header">
+            Solved! :D :D
+            <div className="dismiss" onClick={dismiss}>[X]</div>
+          </div>
+          <div>
+            <img src="https://s-media-cache-ak0.pinimg.com/736x/56/4d/f0/564df0bc39a89086e15134b0bf82e9ae.jpg" />
+          </div>
+        </div>
+      </div>
+    );
+
     return (
       <div>
         <div className="puzzle-header">
           <h1 className="puzzle-title">{this.state.title}</h1>
           <h2 className="puzzle-author">{this.state.author}</h2>
         </div>
+        {solved_banner}
         <Grid
           rows={this.state.rows}
           numbers={this.state.numbers}
