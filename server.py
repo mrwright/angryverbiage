@@ -13,37 +13,50 @@ Handler = tornado.web.RequestHandler
 
 global_id = 1
 
+def pos(cell):
+    return (cell % puzzle.width, cell // puzzle.width)
+
+def initialize(puzdata):
+    global puzzle
+    global clues
+    global numbering
+    global row_strs
+    global marked_cells
+
+    puzzle = puz.load(puzdata)
+
+    clues = puzzle.clue_numbering()
+    numbering = [
+        [0] * puzzle.width for _ in range(puzzle.height)
+    ]
+    for clue in clues.across + clues.down:
+        x, y = pos(clue['cell'])
+        numbering[y][x] = clue['num']
+
+
+    row_strs = []
+    for row in range(puzzle.height):
+        cell = row * puzzle.width
+        row = puzzle.fill[cell:cell + puzzle.width]
+        row_str = ''.join(row.replace("-", " ").replace(".", "#"))
+        row_strs.append(row_str)
+
+    marked_cells = [
+        [False] * puzzle.width for _ in range(puzzle.height)
+    ]
+    for marked_cell in puzzle.markup().get_markup_squares():
+        x, y = pos(marked_cell)
+        marked_cells[y][x] = True
+
+fname = 'Mar2117.puz'
+with open(fname, 'rb') as f:
+    initialize(f.read())
+
 #puzzle = puz.read('washpost.puz')
 #puzzle = puz.read('puzpy-master/testfiles/nyt_weekday_with_notes.puz')
 #puzzle = puz.read('puzpy-master/testfiles/nyt_sun_rebus.puz')
 #puzzle = puz.read('puzpy-master/testfiles/av110622.puz')
-puzzle = puz.read('Mar2117.puz')
 
-def pos(cell):
-    return (cell % puzzle.width, cell // puzzle.width)
-
-clues = puzzle.clue_numbering()
-numbering = [
-    [0] * puzzle.width for _ in range(puzzle.height)
-]
-for clue in clues.across + clues.down:
-    x, y = pos(clue['cell'])
-    numbering[y][x] = clue['num']
-
-
-row_strs = []
-for row in range(puzzle.height):
-    cell = row * puzzle.width
-    row = puzzle.fill[cell:cell + puzzle.width]
-    row_str = ''.join(row.replace("-", " ").replace(".", "#"))
-    row_strs.append(row_str)
-
-marked_cells = [
-    [False] * puzzle.width for _ in range(puzzle.height)
-]
-for marked_cell in puzzle.markup().get_markup_squares():
-    x, y = pos(marked_cell)
-    marked_cells[y][x] = True
 
 def next_id():
     global global_id
@@ -93,6 +106,9 @@ class MessageBuffer(object):
         self.cache.extend(messages)
         if len(self.cache) > self.cache_size:
             self.cache = self.cache[-self.cache_size:]
+
+    def clear(self):
+        self.cache = []
 
 global_message_buffer = MessageBuffer()
 
@@ -168,12 +184,24 @@ class DataHandler(Handler):
         }
         global_message_buffer.new_messages([message])
 
+class UploadHandler(Handler):
+    def get(self):
+        self.render("upload.html")
+
+    def post(self):
+        fileinfo = self.request.files['puzzle'][0]
+        initialize(fileinfo.body)
+        global_message_buffer.clear()
+
+        self.redirect("/")
+
 def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
         (r"/poll", PollUpdates),
         (r"/grid", GridHandler),
         (r"/data", DataHandler),
+        (r"/upload", UploadHandler),
     ],
     static_path=os.path.join(os.path.dirname(__file__), "static"),
     )

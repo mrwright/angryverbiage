@@ -1,0 +1,15 @@
+<html>
+<head>
+  <title>Upload a puzzle!</title>
+</head>
+<body>
+<h1>Upload a puzzle!</h1>
+<b>Important:</b> this will clear all progress on any previous puzzle!
+Also, everyone will have to reload the puzzle after the upload is complete.
+<br />
+<form enctype="multipart/form-data" action="/upload" method="post">
+AcrossLite (.puz) file: <input type="file" name="puzzle" />
+<br />
+<input type="submit" value="upload" />
+</body>
+</html>
