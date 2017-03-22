@@ -400,7 +400,7 @@ class Crossword extends React.Component {
       if (e.metaKey || e.altKey || e.ctrlKey) {
         return;
       }
-      let {x, y, rows, mode} = this_.state;
+      let {x, y, rows, mode, clues} = this_.state;
       if (e.key === 'ArrowUp') {
         this_.moveDir(0, -1);
         e.preventDefault();
@@ -412,6 +412,26 @@ class Crossword extends React.Component {
         e.preventDefault();
       } else if (e.key === 'ArrowRight') {
         this_.moveDir(1, 0);
+        e.preventDefault();
+      } else if (e.key === 'Tab') {
+        // TODO: we have to jump through hoops here because the data
+        // representations are bad. Make them less bad?
+        const dir = (e.shiftKey ? -1 : 1);
+        const extents = get_extents(rows, x, y);
+        const activeNumber = this_.activeNumber(extents);
+        const relevantClues = (mode == 'across' ?
+                               clues.across : clues.down);
+        let clue_idx;
+        for (clue_idx = 0; clue_idx < relevantClues.length; clue_idx += 1) {
+          if (relevantClues[clue_idx].num == activeNumber) { break; }
+        }
+        const newClue = relevantClues[
+          (clue_idx + dir + relevantClues.length) % relevantClues.length
+        ];
+        this_.setState({
+          x: newClue.x,
+          y: newClue.y,
+        });
         e.preventDefault();
       } else if (e.key === '\\' || e.key == ' ') {
         if (mode === 'across') {
@@ -461,6 +481,18 @@ class Crossword extends React.Component {
       solved: false,
       dismissed: false,
     };
+  }
+
+  activeNumber(extents) {
+    if (Object.keys(extents).length > 0) {
+      if (this.state.mode == 'across') {
+        return this.state.numbers[this.state.y][extents.left];
+      } else {
+        return this.state.numbers[extents.top][this.state.x];
+      }
+    } else {
+      return 0;
+    }
   }
 
   render() {
@@ -532,16 +564,7 @@ class Crossword extends React.Component {
       });
     };
 
-    let activeClue;
-    if (Object.keys(extents).length > 0) {
-      if (this.state.mode == 'across') {
-        activeClue = this.state.numbers[this.state.y][extents.left];
-      } else {
-        activeClue = this.state.numbers[extents.top][this.state.x];
-      }
-    } else {
-      activeClue = 0;
-    }
+    let activeNumber = this.activeNumber(extents);
 
     let dismiss = function() {
       this_.setState({
@@ -595,7 +618,7 @@ class Crossword extends React.Component {
           across={this.state.clues.across}
           down={this.state.clues.down}
           mode={this.state.mode}
-          activeClue={activeClue}
+          activeClue={activeNumber}
           onClueClick={onClueClick}
           hilightClues={this.state.hilightClues}
         />
