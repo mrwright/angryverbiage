@@ -38,7 +38,7 @@ function get_extents(grid, x, y) {
 
 class GridCell extends React.Component {
   render() {
-    const {x, y, extents, rownum, colnum, mode} = this.props;
+    const {x, y, extents, rownum, colnum, mode, circled} = this.props;
 
     const isActive = (
       (mode == 'down' && x == colnum && rownum >= extents.top && rownum <= extents.bottom) ||
@@ -89,6 +89,8 @@ class GridCell extends React.Component {
       this_.props.onMouseLeave(colnum, rownum);
     };
 
+    const circleClassName = circled ? "circle" : "";
+
     return (
       <div
         className={elemclass}
@@ -96,8 +98,10 @@ class GridCell extends React.Component {
         onMouseEnter={mouseEnterHandler}
         onMouseLeave={mouseLeaveHandler}
       >
-        {numbercell}
-        {contents}
+        <div className={circleClassName}>
+          {numbercell}
+          {contents}
+        </div>
       </div>
     );
   }
@@ -134,6 +138,7 @@ class GridRow extends React.Component {
             onMouseEnter={this.props.onCellMouseEnter}
             onMouseLeave={this.props.onCellMouseLeave}
             key={idx}
+            circled={this.props.markedCells[idx]}
           />);
       }
     }
@@ -165,6 +170,7 @@ class Grid extends React.Component {
           onCellMouseEnter={this.props.onCellMouseEnter}
           onCellMouseLeave={this.props.onCellMouseLeave}
           key={idx}
+          markedCells={this.props.markup[idx]}
         />
       );
     }
@@ -384,6 +390,7 @@ class Crossword extends React.Component {
           author: result.author,
           notes: result.notes,
           solved: result.solved,
+          markup: result.markup,
         });
         this_.doPoll();
       }
@@ -444,6 +451,7 @@ class Crossword extends React.Component {
       y: 0,
       mode: 'across',
       hilightClues: [],
+      markup: [],
       mouseX: null,
       mouseY: null,
       title: null,
@@ -581,6 +589,7 @@ class Crossword extends React.Component {
           onCellMouseLeave={onCellMouseLeave}
           mode={this.state.mode}
           extents={extents}
+          markup={this.state.markup}
         />
         <ClueBox
           across={this.state.clues.across}

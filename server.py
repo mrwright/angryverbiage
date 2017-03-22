@@ -13,10 +13,11 @@ Handler = tornado.web.RequestHandler
 
 global_id = 1
 
-puzzle = puz.read('washpost.puz')
+#puzzle = puz.read('washpost.puz')
 #puzzle = puz.read('puzpy-master/testfiles/nyt_weekday_with_notes.puz')
 #puzzle = puz.read('puzpy-master/testfiles/nyt_sun_rebus.puz')
 #puzzle = puz.read('puzpy-master/testfiles/av110622.puz')
+puzzle = puz.read('Mar2117.puz')
 
 def pos(cell):
     return (cell % puzzle.width, cell // puzzle.width)
@@ -37,6 +38,12 @@ for row in range(puzzle.height):
     row_str = ''.join(row.replace("-", " ").replace(".", "#"))
     row_strs.append(row_str)
 
+marked_cells = [
+    [False] * puzzle.width for _ in range(puzzle.height)
+]
+for marked_cell in puzzle.markup().get_markup_squares():
+    x, y = pos(marked_cell)
+    marked_cells[y][x] = True
 
 def next_id():
     global global_id
@@ -132,6 +139,7 @@ class GridHandler(Handler):
             'author': puzzle.author,
             'notes': puzzle.notes,
             'numbering': numbering,
+            'markup': marked_cells,
             'clues': {
                 'across': across_clues,
                 'down': down_clues,
