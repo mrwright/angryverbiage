@@ -29,6 +29,15 @@ h2.puzzle-author {
     display: table-row;
 }
 
+@keyframes cell-fade {
+    0% { background-color: #8080ff; }
+}
+
+.animated-cell {
+    animation-name: cell-fade;
+    animation-duration: 1s;
+}
+
 .crossword-cell {
     display: table-cell;
     border-width: 1px;
@@ -103,12 +112,16 @@ h2.puzzle-author {
     max-width: 250px;
 }
 
+.cluebox .clue.hilit {
+    background: #ffc0c0;
+}
+
 .cluebox .clue.active {
     background: #ffff80;
 }
 
-.cluebox .clue.hilit {
-    background: #ffc0c0;
+.cluebox .clue.active.hilit {
+    background: #ffc080;
 }
 
 .cluebox .clue .cluenum {

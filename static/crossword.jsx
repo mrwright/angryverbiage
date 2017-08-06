@@ -37,6 +37,21 @@ function get_extents(grid, x, y) {
 
 
 class GridCell extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      animating: false,
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.contents != nextProps.contents) {
+      this.setState({
+        animating: true,
+      });
+    }
+  }
+
   render() {
     const {x, y, extents, rownum, colnum, mode, circled} = this.props;
 
@@ -58,6 +73,9 @@ class GridCell extends React.Component {
       elemclass += " active-cell";
     } else if (isActive) {
       elemclass += " active";
+    }
+    if (this.state.animating) {
+      elemclass += " animated-cell";
     }
 
     let numbercell;
@@ -89,6 +107,10 @@ class GridCell extends React.Component {
       this_.props.onMouseLeave(colnum, rownum);
     };
 
+    const animationEndHandler = function() {
+      this_.setState({animating: false});
+    }
+
     const circleClassName = circled ? "circle" : "";
 
     return (
@@ -97,6 +119,7 @@ class GridCell extends React.Component {
         onClick={clickHandler}
         onMouseEnter={mouseEnterHandler}
         onMouseLeave={mouseLeaveHandler}
+        onAnimationEnd={animationEndHandler}
       >
         <div className={circleClassName}>
           {numbercell}
@@ -252,6 +275,11 @@ class ClueBox extends React.Component {
   }
 }
 
+const win_urls = [
+  'https://s-media-cache-ak0.pinimg.com/736x/89/d0/87/89d087f7a3bf4abae7dfc638b0ab025b--crossword-puzzles-jigsaw-puzzles.jpg',
+  'https://s-media-cache-ak0.pinimg.com/736x/56/4d/f0/564df0bc39a89086e15134b0bf82e9ae.jpg',
+]
+
 class Crossword extends React.Component {
   setGridChar(rows, c, x, y) {
     // TODO: make rows immutable
@@ -391,6 +419,7 @@ class Crossword extends React.Component {
           notes: result.notes,
           solved: result.solved,
           markup: result.markup,
+          win_url_idx: Math.floor(Math.random() * win_urls.length),
         });
         this_.doPoll();
       }
@@ -581,6 +610,8 @@ class Crossword extends React.Component {
       banner_class = "solved hidden";
     }
 
+    const image_url = win_urls[this.state.win_url_idx];
+
     var solved_banner = (
       <div className={banner_class}>
         <div className="solved-inner">
@@ -589,7 +620,7 @@ class Crossword extends React.Component {
             <div className="dismiss" onClick={dismiss}>[X]</div>
           </div>
           <div>
-            <img src="https://s-media-cache-ak0.pinimg.com/736x/56/4d/f0/564df0bc39a89086e15134b0bf82e9ae.jpg" />
+            <img src={image_url} />
           </div>
         </div>
       </div>
